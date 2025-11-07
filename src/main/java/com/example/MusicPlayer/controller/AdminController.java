@@ -2,13 +2,20 @@ package com.example.MusicPlayer.controller;
 
 import com.example.MusicPlayer.dto.SongRequest;
 import com.example.MusicPlayer.model.Song;
+import com.example.MusicPlayer.repository.SongRepository;
+import com.example.MusicPlayer.security.CloudinaryService;
 import com.example.MusicPlayer.service.AuthService;
 import com.example.MusicPlayer.service.SongService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @PreAuthorize("hasRole('ADMIN')")
@@ -18,12 +25,42 @@ public class AdminController {
 
     private final AuthService authService;
     private final SongService songService;
-
-    public AdminController(AuthService authService, SongService songService) {
+    private final CloudinaryService cloudinaryService;
+    private final SongRepository songRepository;
+    public AdminController(AuthService authService, SongService songService, CloudinaryService cloudinaryService, SongRepository songRepository) {
         this.authService = authService;
         this.songService = songService;
+        this.cloudinaryService = cloudinaryService;
+        this.songRepository = songRepository;
     }
 
+
+    @PostMapping("/upload")
+    public ResponseEntity<?> uploadSong(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("title") String title,
+            @RequestParam("artist") String artist,
+            @RequestParam(value = "album", required = false) String album,
+            @RequestParam(value = "durationSeconds", required = false) Integer durationSeconds
+    ) throws IOException {
+
+        String fileUrl = cloudinaryService.uploadSong(file);
+
+        Song song = new Song();
+        song.setTitle(title);
+        song.setArtist(artist);
+        song.setAlbum(album);
+        song.setFileUrl(fileUrl);
+        song.setDurationSeconds(durationSeconds);
+        song.setCreatedAt(LocalDateTime.now());
+
+        songRepository.save(song);
+
+        return ResponseEntity.ok(Map.of(
+                "message", "Song uploaded successfully!",
+                "url", fileUrl
+        ));
+    }
     // ✅ ADMIN — CRUD for Songs
 
     @GetMapping("/songs")
