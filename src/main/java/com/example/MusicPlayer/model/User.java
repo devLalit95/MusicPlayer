@@ -29,6 +29,10 @@ public class User {
     private String username;
 
     @NotBlank
+    @Size(max = 50)
+    private String name;
+
+    @NotBlank
     @Size(max = 100)
     @Email
     @Column(unique = true)
@@ -58,6 +62,14 @@ public class User {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getUsername() {

@@ -106,7 +106,7 @@ public class Song {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    @ManyToMany(mappedBy = "songs")
+    @ManyToMany
     private List<Playlist> playlists = new ArrayList<>();
 
     @PrePersist

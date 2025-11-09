@@ -17,6 +17,10 @@ public class RegisterRequest {
     private String username;
 
     @NotBlank
+    @Size(min = 3, max = 50)
+    private String rname;
+
+    @NotBlank
     @Size(max = 100)
     @Email
     private String email;
@@ -47,5 +51,13 @@ public class RegisterRequest {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public String getRname() {
+        return rname;
+    }
+
+    public void setRname(String rname) {
+        this.rname = rname;
     }
 }
