@@ -1,0 +1,21 @@
+# build output
+target/
+build/
+
+# version control files
+.git
+.gitignore
+
+# IDE / editor files
+*.iml
+.idea/
+.vscode/
+
+# docs / misc
+README.md
+Dockerfile
+docker-compose.yml
+
+# OS files
+.DS_Store
+Thumbs.db
