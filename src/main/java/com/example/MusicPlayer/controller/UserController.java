@@ -2,7 +2,6 @@ package com.example.MusicPlayer.controller;
 
 import com.example.MusicPlayer.dto.PlaylistRequest;
 import com.example.MusicPlayer.model.Playlist;
-import com.example.MusicPlayer.model.Song;
 import com.example.MusicPlayer.service.PlaylistService;
 import com.example.MusicPlayer.service.SongService;
 import jakarta.validation.Valid;

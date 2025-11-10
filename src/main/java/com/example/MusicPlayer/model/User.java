@@ -4,9 +4,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-
-import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
@@ -16,37 +13,35 @@ import java.util.List;
 @Entity
 @Table(name = "users")
 @NoArgsConstructor
-@AllArgsConstructor
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
-    @Size(max = 50)
-    @Column(unique = true)
+    @NotBlank(message = "Username is required")
+    @Size(max = 50, message = "Username must be less than 50 characters")
+    @Column(unique = true, nullable = false)
     private String username;
 
-    @NotBlank
-    @Size(max = 50)
-    private String name;
 
-    @NotBlank
-    @Size(max = 100)
-    @Email
-    @Column(unique = true)
+    @NotBlank(message = "Email is required")
+    @Size(max = 100, message = "Email must be less than 100 characters")
+    @Email(message = "Email should be valid")
+    @Column(unique = true, nullable = false)
     private String email;
 
-    @NotBlank
-    @Size(min = 6)
+    @NotBlank(message = "Password is required")
+    @Size(min = 6, message = "Password must be at least 6 characters")
+    @Column(nullable = false)
     private String password;
 
-    @Column(name = "created_at")
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @Enumerated(EnumType.STRING)
-    private Role role;
+    @Column(nullable = false)
+    private Role role = Role.USER;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Playlist> playlists = new ArrayList<>();
@@ -54,6 +49,13 @@ public class User {
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
+        if (role == null) {
+            role = Role.USER;
+        }
+    }
+
+    public enum Role {
+        USER, ADMIN
     }
 
     public Long getId() {
@@ -64,14 +66,6 @@ public class User {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getUsername() {
         return username;
     }
@@ -79,6 +73,7 @@ public class User {
     public void setUsername(String username) {
         this.username = username;
     }
+
 
     public String getEmail() {
         return email;
@@ -118,9 +113,5 @@ public class User {
 
     public void setPlaylists(List<Playlist> playlists) {
         this.playlists = playlists;
-    }
-
-    public enum Role {
-        USER, ADMIN
     }
 }

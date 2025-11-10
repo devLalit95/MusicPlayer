@@ -48,7 +48,7 @@ public class AuthService {
         User savedUser = userRepository.save(user);
 
         String jwt = jwtService.generateToken(savedUser.getUsername());
-        return new JwtResponse(jwt, savedUser.getId(), savedUser.getUsername(), savedUser.getName(),
+        return new JwtResponse(jwt, savedUser.getId(), savedUser.getUsername(),
                 savedUser.getEmail(), savedUser.getRole().name());
     }
 
@@ -64,7 +64,7 @@ public class AuthService {
                     .orElseThrow(() -> new UsernameNotFoundException("User not found: " + loginRequest.getUsername()));
 
             String jwt = jwtService.generateToken(user.getUsername());
-            return new JwtResponse(jwt, user.getId(), user.getUsername(), user.getName(),
+            return new JwtResponse(jwt, user.getId(), user.getUsername(),
                     user.getEmail(), user.getRole().name());
         } catch (Exception e) {
             throw new RuntimeException("Invalid username or password");

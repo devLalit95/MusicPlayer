@@ -12,29 +12,27 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class RegisterRequest {
 
-    @NotBlank
-    @Size(min = 3, max = 50)
+    @NotBlank(message = "Username is required")
+    @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
     private String username;
 
-    @NotBlank
-    @Size(min = 3, max = 50)
-    private String rname;
-
-    @NotBlank
-    @Size(max = 100)
-    @Email
+    @NotBlank(message = "Email is required")
+    @Size(max = 100, message = "Email must be less than 100 characters")
+    @Email(message = "Email should be valid")
     private String email;
 
-    @NotBlank
-    @Size(min = 6)
+    @NotBlank(message = "Password is required")
+    @Size(min = 6, message = "Password must be at least 6 characters")
     private String password;
 
-    public String getPassword() {
-        return password;
+
+
+    public String getUsername() {
+        return username;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getEmail() {
@@ -45,19 +43,11 @@ public class RegisterRequest {
         this.email = email;
     }
 
-    public String getUsername() {
-        return username;
+    public String getPassword() {
+        return password;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getRname() {
-        return rname;
-    }
-
-    public void setRname(String rname) {
-        this.rname = rname;
+    public void setPassword(String password) {
+        this.password = password;
     }
 }
