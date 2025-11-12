@@ -23,7 +23,10 @@ public class UserController {
         this.playlistService = playlistService;
     }
 
-
+        @GetMapping("/ping")
+        public String ping() {
+            return "App is alive!";
+        }
 
     @GetMapping("/playlists")
     public ResponseEntity<List<Playlist>> getUserPlaylists() {

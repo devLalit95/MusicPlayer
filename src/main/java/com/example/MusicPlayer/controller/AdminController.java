@@ -23,12 +23,10 @@ import java.util.Map;
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class AdminController {
 
-    private final AuthService authService;
     private final SongService songService;
     private final CloudinaryService cloudinaryService;
     private final SongRepository songRepository;
     public AdminController(AuthService authService, SongService songService, CloudinaryService cloudinaryService, SongRepository songRepository) {
-        this.authService = authService;
         this.songService = songService;
         this.cloudinaryService = cloudinaryService;
         this.songRepository = songRepository;
