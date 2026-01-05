@@ -2,10 +2,12 @@ package com.example.MusicPlayer.controller;
 
 import com.example.MusicPlayer.dto.SongRequest;
 import com.example.MusicPlayer.model.Song;
+import com.example.MusicPlayer.model.User;
 import com.example.MusicPlayer.repository.SongRepository;
 import com.example.MusicPlayer.security.CloudinaryService;
 import com.example.MusicPlayer.service.AuthService;
 import com.example.MusicPlayer.service.SongService;
+import com.example.MusicPlayer.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -23,16 +25,31 @@ import java.util.Map;
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class AdminController {
 
+    private final UserService userService;
     private final SongService songService;
     private final CloudinaryService cloudinaryService;
     private final SongRepository songRepository;
-    public AdminController(AuthService authService, SongService songService, CloudinaryService cloudinaryService, SongRepository songRepository) {
+    public AdminController(AuthService authService, UserService userService, SongService songService, CloudinaryService cloudinaryService, SongRepository songRepository) {
+        this.userService = userService;
         this.songService = songService;
         this.cloudinaryService = cloudinaryService;
         this.songRepository = songRepository;
     }
 
 
+
+    // GET ALL USERS
+    @GetMapping("/users")
+    public List<User> getAllUsers() {
+        return userService.getAllUsers();
+    }
+
+    // DELETE USER
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
+        return ResponseEntity.ok("User deleted successfully");
+    }
     @PostMapping("/upload")
     public ResponseEntity<?> uploadSong(
             @RequestParam("file") MultipartFile file,
@@ -80,7 +97,7 @@ public class AdminController {
     }
 
     @PutMapping("/songs/{id}")
-    public ResponseEntity<Song> updateSong(@PathVariable Long id, @Valid @RequestBody SongRequest songRequest) {
+    public ResponseEntity<Song> updateSong(@PathVariable Long id,  @RequestBody SongRequest songRequest) {
         Song song = songService.updateSong(id, songRequest);
         return ResponseEntity.ok(song);
     }

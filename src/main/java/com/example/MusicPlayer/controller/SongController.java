@@ -1,10 +1,8 @@
 package com.example.MusicPlayer.controller;
 
 
-import com.example.MusicPlayer.dto.SongRequest;
 import com.example.MusicPlayer.model.Song;
 import com.example.MusicPlayer.service.SongService;
-import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

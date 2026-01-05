@@ -26,6 +26,12 @@ public class AuthController {
         return ResponseEntity.ok("User registered successfully!");
     }
 
+    @GetMapping("/ping")
+    public String ping() {
+        return "App is alive!";
+    }
+
+
 
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
