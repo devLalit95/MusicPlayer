@@ -1,7 +1,7 @@
 package com.example.MusicPlayer.service;
 
-
 import com.example.MusicPlayer.dto.PlaylistRequest;
+import com.example.MusicPlayer.exception.ResourceNotFoundException;
 import com.example.MusicPlayer.model.Playlist;
 import com.example.MusicPlayer.model.Song;
 import com.example.MusicPlayer.model.User;
@@ -15,14 +15,14 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class PlaylistService {
+public class PlaylistService implements PlaylistServiceInterface {
 
     private final PlaylistRepository playlistRepository;
     private final UserRepository userRepository;
     private final SongRepository songRepository;
 
     public PlaylistService(PlaylistRepository playlistRepository, UserRepository userRepository,
-                           SongRepository songRepository) {
+            SongRepository songRepository) {
         this.playlistRepository = playlistRepository;
         this.userRepository = userRepository;
         this.songRepository = songRepository;
@@ -39,10 +39,11 @@ public class PlaylistService {
         return playlistRepository.findByUserId(currentUser.getId());
     }
 
+    @Override
     public Playlist getPlaylistById(Long id) {
         User currentUser = getCurrentUser();
         return playlistRepository.findByIdAndUserId(id, currentUser.getId())
-                .orElseThrow(() -> new RuntimeException("Playlist not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Playlist not found with id: " + id));
     }
 
     public Playlist createPlaylist(PlaylistRequest playlistRequest) {

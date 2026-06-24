@@ -5,9 +5,8 @@ import com.example.MusicPlayer.model.Song;
 import com.example.MusicPlayer.model.User;
 import com.example.MusicPlayer.repository.SongRepository;
 import com.example.MusicPlayer.security.CloudinaryService;
-import com.example.MusicPlayer.service.AuthService;
-import com.example.MusicPlayer.service.SongService;
-import com.example.MusicPlayer.service.UserService;
+import com.example.MusicPlayer.service.SongServiceInterface;
+import com.example.MusicPlayer.service.UserServiceInterface;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -25,18 +24,20 @@ import java.util.Map;
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class AdminController {
 
-    private final UserService userService;
-    private final SongService songService;
+    private final UserServiceInterface userService;
+    private final SongServiceInterface songService;
     private final CloudinaryService cloudinaryService;
     private final SongRepository songRepository;
-    public AdminController(AuthService authService, UserService userService, SongService songService, CloudinaryService cloudinaryService, SongRepository songRepository) {
+
+    public AdminController(UserServiceInterface userService,
+            SongServiceInterface songService,
+            CloudinaryService cloudinaryService,
+            SongRepository songRepository) {
         this.userService = userService;
         this.songService = songService;
         this.cloudinaryService = cloudinaryService;
         this.songRepository = songRepository;
     }
-
-
 
     // GET ALL USERS
     @GetMapping("/users")
@@ -45,19 +46,19 @@ public class AdminController {
     }
 
     // DELETE USER
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/users/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         return ResponseEntity.ok("User deleted successfully");
     }
+
     @PostMapping("/upload")
     public ResponseEntity<?> uploadSong(
             @RequestParam("file") MultipartFile file,
             @RequestParam("title") String title,
             @RequestParam("artist") String artist,
             @RequestParam(value = "album", required = false) String album,
-            @RequestParam(value = "durationSeconds", required = false) Integer durationSeconds
-    ) throws IOException {
+            @RequestParam(value = "durationSeconds", required = false) Integer durationSeconds) throws IOException {
 
         String fileUrl = cloudinaryService.uploadSong(file);
 
@@ -73,8 +74,7 @@ public class AdminController {
 
         return ResponseEntity.ok(Map.of(
                 "message", "Song uploaded successfully!",
-                "url", fileUrl
-        ));
+                "url", fileUrl));
     }
     // ✅ ADMIN — CRUD for Songs
 
@@ -97,7 +97,7 @@ public class AdminController {
     }
 
     @PutMapping("/songs/{id}")
-    public ResponseEntity<Song> updateSong(@PathVariable Long id,  @RequestBody SongRequest songRequest) {
+    public ResponseEntity<Song> updateSong(@PathVariable Long id, @RequestBody SongRequest songRequest) {
         Song song = songService.updateSong(id, songRequest);
         return ResponseEntity.ok(song);
     }
@@ -107,6 +107,5 @@ public class AdminController {
         songService.deleteSong(id);
         return ResponseEntity.noContent().build();
     }
-
 
 }

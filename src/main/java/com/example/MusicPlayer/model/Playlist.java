@@ -1,5 +1,6 @@
 package com.example.MusicPlayer.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -31,20 +32,16 @@ public class Playlist {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     // CORRECTED ManyToMany mapping with composite key
     @ManyToMany
-    @JoinTable(
-            name = "playlist_songs",
-            joinColumns = @JoinColumn(name = "playlist_id"),
-            inverseJoinColumns = @JoinColumn(name = "song_id"),
-            uniqueConstraints = {
-                    @UniqueConstraint(columnNames = {"playlist_id", "song_id"})
-            }
-    )
+    @JoinTable(name = "playlist_songs", joinColumns = @JoinColumn(name = "playlist_id"), inverseJoinColumns = @JoinColumn(name = "song_id"), uniqueConstraints = {
+            @UniqueConstraint(columnNames = { "playlist_id", "song_id" })
+    })
     private List<Song> songs = new ArrayList<>();
 
     @PrePersist
@@ -132,12 +129,10 @@ public class Playlist {
         }
 
         if (this.songs != null) {
-            boolean removed = this.songs.removeIf(s ->
-                    s.getId() != null && s.getId().equals(song.getId()));
+            boolean removed = this.songs.removeIf(s -> s.getId() != null && s.getId().equals(song.getId()));
 
             if (removed && song.getPlaylists() != null) {
-                song.getPlaylists().removeIf(p ->
-                        p.getId() != null && p.getId().equals(this.id));
+                song.getPlaylists().removeIf(p -> p.getId() != null && p.getId().equals(this.id));
             }
         }
     }
@@ -163,8 +158,10 @@ public class Playlist {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         Playlist playlist = (Playlist) o;
         return Objects.equals(id, playlist.id);
     }

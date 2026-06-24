@@ -1,5 +1,6 @@
 package com.example.MusicPlayer.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -8,7 +9,9 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -24,7 +27,6 @@ public class User {
     @Column(unique = true, nullable = false)
     private String username;
 
-
     @NotBlank(message = "Email is required")
     @Size(max = 100, message = "Email must be less than 100 characters")
     @Email(message = "Email should be valid")
@@ -34,6 +36,7 @@ public class User {
     @NotBlank(message = "Password is required")
     @Size(min = 6, message = "Password must be at least 6 characters")
     @Column(nullable = false)
+    @JsonIgnore
     private String password;
 
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -45,6 +48,15 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Playlist> playlists = new ArrayList<>();
+
+    @JsonIgnore
+    @ManyToMany
+    @JoinTable(name = "user_liked_songs", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "song_id"))
+    private Set<Song> likedSongs = new HashSet<>();
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SongPlayHistory> playHistories = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {
@@ -73,7 +85,6 @@ public class User {
     public void setUsername(String username) {
         this.username = username;
     }
-
 
     public String getEmail() {
         return email;
@@ -113,5 +124,42 @@ public class User {
 
     public void setPlaylists(List<Playlist> playlists) {
         this.playlists = playlists;
+    }
+
+    public Set<Song> getLikedSongs() {
+        return likedSongs;
+    }
+
+    public void setLikedSongs(Set<Song> likedSongs) {
+        this.likedSongs = likedSongs;
+    }
+
+    public List<SongPlayHistory> getPlayHistories() {
+        return playHistories;
+    }
+
+    public void setPlayHistories(List<SongPlayHistory> playHistories) {
+        this.playHistories = playHistories;
+    }
+
+    public void addLikedSong(Song song) {
+        if (song == null) {
+            throw new IllegalArgumentException("Song cannot be null");
+        }
+        if (likedSongs == null) {
+            likedSongs = new HashSet<>();
+        }
+        if (likedSongs.add(song) && song.getLikedByUsers() != null) {
+            song.getLikedByUsers().add(this);
+        }
+    }
+
+    public void removeLikedSong(Song song) {
+        if (song == null) {
+            throw new IllegalArgumentException("Song cannot be null");
+        }
+        if (likedSongs != null && likedSongs.remove(song) && song.getLikedByUsers() != null) {
+            song.getLikedByUsers().remove(this);
+        }
     }
 }

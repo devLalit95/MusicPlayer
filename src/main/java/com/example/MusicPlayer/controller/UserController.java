@@ -1,8 +1,13 @@
 package com.example.MusicPlayer.controller;
+
 import com.example.MusicPlayer.dto.PlaylistRequest;
+import com.example.MusicPlayer.dto.UserProfileResponse;
+import com.example.MusicPlayer.dto.UserProfileUpdateRequest;
 import com.example.MusicPlayer.model.Playlist;
-import com.example.MusicPlayer.service.PlaylistService;
-import com.example.MusicPlayer.service.SongService;
+import com.example.MusicPlayer.model.Song;
+import com.example.MusicPlayer.service.PlaylistServiceInterface;
+import com.example.MusicPlayer.service.SongServiceInterface;
+import com.example.MusicPlayer.service.UserServiceInterface;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,18 +19,59 @@ import java.util.List;
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class UserController {
 
-    private final SongService songService;
-    private final PlaylistService playlistService;
+    private final SongServiceInterface songService;
+    private final PlaylistServiceInterface playlistService;
+    private final UserServiceInterface userService;
 
-    public UserController(SongService songService, PlaylistService playlistService) {
+    public UserController(SongServiceInterface songService,
+            PlaylistServiceInterface playlistService,
+            UserServiceInterface userService) {
         this.songService = songService;
         this.playlistService = playlistService;
+        this.userService = userService;
     }
 
-        @GetMapping("/ping")
-        public String ping() {
-            return "App is alive!";
-        }
+    @GetMapping("/ping")
+    public String ping() {
+        return "App is alive!";
+    }
+
+    @GetMapping("/profile")
+    public ResponseEntity<UserProfileResponse> getProfile() {
+        return ResponseEntity.ok(userService.getCurrentUserProfile());
+    }
+
+    @PutMapping("/profile")
+    public ResponseEntity<UserProfileResponse> updateProfile(@RequestBody UserProfileUpdateRequest request) {
+        return ResponseEntity.ok(userService.updateCurrentUserProfile(request));
+    }
+
+    @GetMapping("/profile/liked-songs")
+    public ResponseEntity<List<Song>> getLikedSongs() {
+        return ResponseEntity.ok(songService.getUserLikedSongs());
+    }
+
+    @GetMapping("/profile/frequent-songs")
+    public ResponseEntity<List<Song>> getFrequentlyPlayedSongs() {
+        return ResponseEntity.ok(songService.getUserFrequentlyPlayedSongs());
+    }
+
+    @PostMapping("/songs/{songId}/like")
+    public ResponseEntity<Void> likeSong(@PathVariable Long songId) {
+        songService.likeSong(songId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/songs/{songId}/like")
+    public ResponseEntity<Void> dislikeSong(@PathVariable Long songId) {
+        songService.dislikeSong(songId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/songs/{songId}/listen")
+    public ResponseEntity<Song> playSong(@PathVariable Long songId) {
+        return ResponseEntity.ok(songService.recordSongPlay(songId));
+    }
 
     @GetMapping("/playlists")
     public ResponseEntity<List<Playlist>> getUserPlaylists() {
@@ -46,7 +92,8 @@ public class UserController {
     }
 
     @PutMapping("/playlists/{id}")
-    public ResponseEntity<Playlist> updatePlaylist(@PathVariable Long id, @Valid @RequestBody PlaylistRequest playlistRequest) {
+    public ResponseEntity<Playlist> updatePlaylist(@PathVariable Long id,
+            @Valid @RequestBody PlaylistRequest playlistRequest) {
         Playlist playlist = playlistService.updatePlaylist(id, playlistRequest);
         return ResponseEntity.ok(playlist);
     }

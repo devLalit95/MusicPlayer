@@ -1,5 +1,6 @@
 package com.example.MusicPlayer.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -8,8 +9,10 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "songs")
@@ -43,8 +46,17 @@ public class Song {
     private LocalDateTime createdAt;
 
     // Corrected ManyToMany mapping
+    @JsonIgnore
     @ManyToMany(mappedBy = "songs")
     private List<Playlist> playlists = new ArrayList<>();
+
+    @JsonIgnore
+    @ManyToMany(mappedBy = "likedSongs")
+    private Set<User> likedByUsers = new HashSet<>();
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "song", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SongPlayHistory> playHistories = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {
@@ -118,6 +130,22 @@ public class Song {
         this.playlists = playlists;
     }
 
+    public Set<User> getLikedByUsers() {
+        return likedByUsers;
+    }
+
+    public void setLikedByUsers(Set<User> likedByUsers) {
+        this.likedByUsers = likedByUsers;
+    }
+
+    public List<SongPlayHistory> getPlayHistories() {
+        return playHistories;
+    }
+
+    public void setPlayHistories(List<SongPlayHistory> playHistories) {
+        this.playHistories = playHistories;
+    }
+
     // Business methods
     public void addToPlaylist(Playlist playlist) {
         if (playlist == null) {
@@ -145,12 +173,10 @@ public class Song {
         }
 
         if (this.playlists != null) {
-            boolean removed = this.playlists.removeIf(p ->
-                    p.getId() != null && p.getId().equals(playlist.getId()));
+            boolean removed = this.playlists.removeIf(p -> p.getId() != null && p.getId().equals(playlist.getId()));
 
             if (removed && playlist.getSongs() != null) {
-                playlist.getSongs().removeIf(s ->
-                        s.getId() != null && s.getId().equals(this.id));
+                playlist.getSongs().removeIf(s -> s.getId() != null && s.getId().equals(this.id));
             }
         }
     }
@@ -171,17 +197,17 @@ public class Song {
     // Equals and hashCode
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         Song song = (Song) o;
-        return Objects.equals(id, song.id) &&
-                Objects.equals(title, song.title) &&
-                Objects.equals(artist, song.artist);
+        return Objects.equals(id, song.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, title, artist);
+        return Objects.hash(id);
     }
 
     // toString method
